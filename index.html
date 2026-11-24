@@ -1,0 +1,1831 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <link rel="manifest" href="./manifest.json" />
+<meta name="theme-color" content="#070d09" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resumo & Foco — Dark Verde</title>
+  <style>
+    :root {
+      --bg-main: #070d09;
+      --bg-surface: #0d1711;
+      --bg-card: #122118;
+      --bg-soft: #172b1f;
+      --accent: #16a34a;
+      --accent-bright: #22c55e;
+      --accent-dark: #064e24;
+      --accent-glow: rgba(34, 197, 94, 0.22);
+      --text-main: #ecfdf3;
+      --text-muted: #9ab5a4;
+      --border: #1e3828;
+      --danger: #ef4444;
+      --warn: #f59e0b;
+      --info: #38bdf8;
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --radius-sm: 10px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background:
+        radial-gradient(circle at top right, var(--accent-glow), transparent 42%),
+        radial-gradient(circle at bottom left, rgba(16, 185, 129, 0.08), transparent 45%),
+        var(--bg-main);
+      color: var(--text-main);
+      min-height: 100vh;
+      line-height: 1.5;
+      padding-bottom: 56px;
+      transition: background 0.25s ease, color 0.2s ease;
+    }
+    .app-shell {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 12px 16px;
+      position: sticky;
+      top: 10px;
+      z-index: 40;
+      backdrop-filter: blur(10px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+    }
+
+    .brand-badge {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--accent-bright), var(--accent-dark));
+      color: #041108;
+      font-weight: 900;
+      font-size: 16px;
+      display: grid;
+      place-items: center;
+      box-shadow: 0 6px 18px var(--accent-glow);
+      flex-shrink: 0;
+    }
+
+    .brand-title {
+      font-size: 17px;
+      font-weight: 800;
+    }
+
+    .brand-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .menu-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-main);
+      font-size: 20px;
+      font-weight: 700;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      transition: 0.18s ease;
+    }
+
+    .menu-btn:hover {
+      border-color: var(--accent-bright);
+      background: var(--bg-soft);
+    }
+
+    .drawer-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.65);
+      z-index: 60;
+      display: none;
+    }
+
+    .drawer-backdrop.open {
+      display: block;
+    }
+
+    .drawer {
+      position: fixed;
+      top: 0;
+      right: -360px;
+      width: min(350px, 92vw);
+      height: 100vh;
+      background: var(--bg-surface);
+      border-left: 1px solid var(--border);
+      z-index: 70;
+      padding: 18px;
+      overflow-y: auto;
+      transition: right 0.25s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .drawer.open {
+      right: 0;
+    }
+
+    .drawer-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 12px;
+    }
+
+    .drawer-section-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-muted);
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .drawer-nav {
+      display: grid;
+      gap: 8px;
+    }
+
+    .drawer-item {
+      width: 100%;
+      text-align: left;
+      padding: 11px 13px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-main);
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: 0.18s ease;
+    }
+
+    .drawer-item:hover,
+    .drawer-item.active {
+      border-color: var(--accent-bright);
+      background: var(--bg-soft);
+      color: var(--accent-bright);
+    }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--bg-soft);
+      border: 1px solid var(--border);
+      color: var(--accent-bright);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 5px 11px;
+      border-radius: 999px;
+      margin-bottom: 12px;
+    }
+
+    .view {
+      display: none;
+      margin-top: 16px;
+      animation: fadeIn 0.2s ease;
+    }
+
+    .view.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero-card,
+    .card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+
+    .hero-title {
+      font-size: clamp(22px, 4vw, 30px);
+      font-weight: 900;
+      line-height: 1.2;
+      margin-bottom: 8px;
+    }
+
+    .muted {
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .small {
+      font-size: 12px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 14px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    label {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select,
+    textarea {
+      width: 100%;
+      background: var(--bg-card);
+      color: var(--text-main);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 11px 13px;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.18s ease;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--accent-bright);
+    }
+
+    textarea {
+      min-height: 130px;
+      resize: vertical;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 11px 16px;
+      border-radius: var(--radius-sm);
+      border: 1px solid transparent;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: 0.18s ease;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent-bright), var(--accent));
+      color: #041309;
+      box-shadow: 0 6px 18px var(--accent-glow);
+    }
+
+    .btn-primary:hover {
+      filter: brightness(1.07);
+    }
+
+    .btn-secondary {
+      background: var(--bg-card);
+      color: var(--text-main);
+      border-color: var(--border);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--accent-bright);
+      background: var(--bg-soft);
+    }
+
+    .btn-danger {
+      background: rgba(239, 68, 68, 0.14);
+      color: #fca5a5;
+      border-color: rgba(239, 68, 68, 0.35);
+    }
+
+    .btn-sm {
+      padding: 7px 12px;
+      font-size: 12px;
+    }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .toggle-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 13px;
+      border-radius: var(--radius-sm);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .toggle-pill input {
+      accent-color: var(--accent-bright);
+      width: 16px;
+      height: 16px;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 12px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 999px;
+      background: var(--accent-bright);
+      transition: width 0.3s ease, background-color 0.35s ease;
+    }
+
+    .kpi-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px;
+    }
+
+    .kpi-value {
+      font-size: 22px;
+      font-weight: 900;
+      color: var(--accent-bright);
+    }
+
+    .option-btn {
+      width: 100%;
+      text-align: left;
+      padding: 13px 15px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-main);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-bottom: 9px;
+      transition: 0.16s ease;
+    }
+
+    .option-btn:hover:not(:disabled) {
+      border-color: var(--accent-bright);
+      background: var(--bg-soft);
+    }
+
+    .option-btn.selected {
+      border-color: var(--accent-bright);
+      background: var(--bg-soft);
+      box-shadow: inset 0 0 0 1px var(--accent-bright);
+    }
+
+    .option-btn.correct {
+      border-color: #22c55e;
+      background: rgba(34, 197, 94, 0.16);
+    }
+
+    .option-btn.wrong {
+      border-color: #ef4444;
+      background: rgba(239, 68, 68, 0.16);
+    }
+
+    .feedback-box {
+      margin-top: 12px;
+      padding: 13px 15px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      font-size: 14px;
+    }
+
+    .q-map {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 12px;
+    }
+
+    .q-dot {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .q-dot.current {
+      border-color: var(--accent-bright);
+      color: var(--accent-bright);
+    }
+
+    .q-dot.answered {
+      background: var(--bg-soft);
+      color: var(--text-main);
+    }
+
+    .q-dot.flagged {
+      border-color: var(--warn);
+      color: var(--warn);
+    }
+
+    body.focus-mode .topbar,
+    body.focus-mode .q-map,
+    body.focus-mode .session-top-meta {
+      display: none !important;
+    }
+
+    body.reading-clean .reading-hide {
+      display: none !important;
+    }
+
+    .reading-highlighted mark {
+      background: rgba(34, 197, 94, 0.24);
+      color: var(--text-main);
+      padding: 1px 4px;
+      border-radius: 4px;
+    }
+
+    .flashcard {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      cursor: pointer;
+      transition: 0.18s ease;
+    }
+
+    .flashcard:hover {
+      border-color: var(--accent-bright);
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--bg-soft);
+      color: var(--text-main);
+      border: 1px solid var(--accent-bright);
+      padding: 10px 18px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+      opacity: 0;
+      pointer-events: none;
+      transition: 0.22s ease;
+      z-index: 90;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .bar-chart {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+      align-items: end;
+      height: 110px;
+      margin-top: 10px;
+      padding-top: 12px;
+    }
+
+    .bar-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100%;
+      justify-content: flex-end;
+      gap: 4px;
+    }
+
+    .bar-item {
+      width: 100%;
+      max-width: 28px;
+      background: var(--accent-bright);
+      border-radius: 6px 6px 2px 2px;
+      min-height: 4px;
+      transition: height 0.25s ease;
+    }
+  </style>
+</head>
+<body>
+  <div id="drawerBackdrop" class="drawer-backdrop" onclick="toggleDrawer(false)"></div>
+
+  <aside id="mainDrawer" class="drawer" aria-label="Menu principal">
+    <div class="drawer-header">
+      <div>
+        <strong>Menu & Aparência</strong>
+        <div class="muted small">Navegação e cores do app</div>
+      </div>
+      <button class="btn btn-secondary btn-sm" onclick="toggleDrawer(false)">Fechar</button>
+    </div>
+
+    <div>
+      <div class="drawer-section-title">Navegação</div>
+      <div class="drawer-nav">
+        <button class="drawer-item" data-nav="viewHome" onclick="navigateTo('viewHome')">Início</button>
+        <button class="drawer-item" data-nav="viewStudy" onclick="navigateTo('viewStudy')">Estudar Assuntos</button>
+        <button class="drawer-item" data-nav="viewAddQuestion" onclick="navigateTo('viewAddQuestion')">Adicionar / Editar Questão</button>
+        <button class="drawer-item" data-nav="viewHistory" onclick="navigateTo('viewHistory')">Histórico & Estatísticas</button>
+      </div>
+    </div>
+
+    <div>
+      <div class="drawer-section-title">Cor de Fundo</div>
+      <div class="field">
+        <select id="bgPaletteSelect" onchange="applyThemeSelection()">
+          <option value="verde_abismo">Verde Abismo (Padrão Dark)</option>
+          <option value="carvao_puro">Carvão Profundo</option>
+          <option value="noite_azul">Noite Azul Escuro</option>
+          <option value="vinho_escuro">Vinho Noturno</option>
+        </select>
+      </div>
+
+      <div class="drawer-section-title">Cor Menor (Apoio / Destaque)</div>
+      <div class="field">
+        <select id="minorColorSelect" onchange="applyThemeSelection()">
+          <option value="verde_esmeralda">Verde Esmeralda (Padrão)</option>
+          <option value="lima_neon">Verde Lima</option>
+          <option value="ciano_suave">Ciano / Água</option>
+          <option value="ambar_quente">Âmbar / Dourado</option>
+          <option value="violeta_suave">Violeta</option>
+        </select>
+      </div>
+    </div>
+
+    <div>
+      <div class="drawer-section-title">Dados e Progresso</div>
+      <div class="drawer-nav">
+        <button class="drawer-item" onclick="exportData()">Exportar Backup (JSON)</button>
+        <button class="drawer-item" onclick="document.getElementById('importFileInput').click()">Importar Backup (JSON)</button>
+        <button class="drawer-item" style="color:#fca5a5" onclick="resetProgressWithConfirm()">Zerar Progresso / Estatísticas</button>
+      </div>
+      <input type="file" id="importFileInput" accept=".json" style="display:none" onchange="importData(event)" />
+    </div>
+  </aside>
+
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand" onclick="navigateTo('viewHome')">
+        <div class="brand-badge">RF</div>
+        <div>
+          <div class="brand-title">Resumo & Foco</div>
+          <div id="headerSubtitle" class="brand-sub">Dark • Verde Escuro</div>
+        </div>
+      </div>
+
+      <div class="topbar-actions">
+        <button class="btn btn-secondary btn-sm" onclick="startQuickReview()">Revisão Relâmpago</button>
+        <button class="menu-btn" aria-label="Abrir menu" onclick="toggleDrawer()">☰</button>
+      </div>
+    </header>
+    <!-- TELA 1: INÍCIO -->
+    <section id="viewHome" class="view active">
+      <div class="hero-card">
+        <span class="chip">Modo Dark • Metas & Treino Manual (1 a 1.000)</span>
+        <h1 class="hero-title">Configure Sua Meta e Treine no Seu Ritmo</h1>
+        <p class="muted">
+          Defina sua meta personalizada antes de começar, acompanhe a barra mudando de cor conforme avança e digite de 1 até 1.000 questões.
+        </p>
+
+        <div class="grid-2" style="margin-top: 16px; align-items: end;">
+          <div class="field" style="margin-bottom:0">
+            <label for="dailyGoalInput">Meta Personalizada de Questões (Hoje)</label>
+            <input type="number" id="dailyGoalInput" min="1" max="1000" value="15" onchange="updateCustomGoal()" />
+          </div>
+          <div class="field" style="margin-bottom:0">
+            <label for="weeklyGoalInput">Meta Semanal (7 dias)</label>
+            <input type="number" id="weeklyGoalInput" min="1" max="5000" value="80" onchange="updateCustomGoal()" />
+          </div>
+        </div>
+
+        <div class="kpi-box" style="margin-top: 14px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+            <strong id="dailyGoalLabel">Meta Diária: 0 / 15 hoje</strong>
+            <span id="streakLabel" class="muted small">Sequência: 0 dia(s) • Semanal: 0/80</span>
+          </div>
+          <div class="progress-track">
+            <div id="dailyGoalBar" class="progress-fill"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 style="font-size:18px; margin-bottom:12px;">Montar Sessão de Questões</h2>
+
+        <div class="grid-3">
+          <div class="field">
+            <label for="homeSubject">Assunto / Tema</label>
+            <select id="homeSubject"></select>
+          </div>
+
+          <div class="field">
+            <label for="homeMode">Modo de Sessão</label>
+            <select id="homeMode">
+              <option value="treino">Modo Treino (dica e gabarito imediato)</option>
+              <option value="prova">Modo Prova (resultado no final)</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="homeQty">Quantidade (1 a 1.000)</label>
+            <input type="number" id="homeQty" min="1" max="1000" value="12" />
+          </div>
+        </div>
+
+        <div class="grid-3">
+          <div class="field">
+            <label for="homeStatusFilter">Status das Questões</label>
+            <select id="homeStatusFilter">
+              <option value="todas">Todas</option>
+              <option value="nao_feitas">Nunca feitas</option>
+              <option value="erradas">Erradas anteriormente</option>
+              <option value="marcadas">Marcadas para revisão</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="homeDiffFilter">Dificuldade</label>
+            <select id="homeDiffFilter">
+              <option value="todas">Todas as dificuldades</option>
+              <option value="Fácil">Fácil</option>
+              <option value="Médio">Médio</option>
+              <option value="Difícil">Difícil</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="homeSearch">Buscar Palavra-Chave</label>
+            <input type="text" id="homeSearch" placeholder="Ex.: fração, célula, Revolução..." />
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <label class="toggle-pill">
+            <input type="checkbox" id="optCounter" />
+            Contador de acertos seguidos (opcional)
+          </label>
+          <label class="toggle-pill">
+            <input type="checkbox" id="optTimer" />
+            Cronômetro / Pomodoro (25 min)
+          </label>
+          <label class="toggle-pill">
+            <input type="checkbox" id="optCalc" checked />
+            Calculadora e rascunho
+          </label>
+        </div>
+
+        <div class="btn-row" style="margin-top: 16px;">
+          <button class="btn btn-primary" onclick="startSessionFromHome()">Iniciar Sessão</button>
+          <button class="btn btn-secondary" onclick="navigateTo('viewStudy')">Ir para Estudar Assuntos</button>
+        </div>
+      </div>
+    </section>
+    <!-- TELA 2: ESTUDAR ASSUNTOS -->
+    <section id="viewStudy" class="view">
+      <div class="card">
+        <div class="reading-hide" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:10px;">
+          <div>
+            <h2 style="font-size:19px;">Estudar Assuntos & Gerar Material</h2>
+            <p class="muted small">Cole um resumo, extraia tópicos e palavras-chave, crie flashcards e gere até 1.000 questões.</p>
+          </div>
+          <div class="btn-row" style="margin-top:0">
+            <button class="btn btn-secondary btn-sm" onclick="toggleReadingClean()">Modo Leitura Limpa</button>
+            <button class="btn btn-secondary btn-sm" onclick="toggleHighlightTerms()">Destacar Termos</button>
+          </div>
+        </div>
+
+        <div class="grid-2 reading-hide">
+          <div class="field">
+            <label for="studySubject">Assunto do Resumo</label>
+            <input type="text" id="studySubject" placeholder="Ex.: Biologia Celular, História do Brasil, Matemática..." />
+          </div>
+          <div class="field">
+            <label for="studyGenQty">Quantidade de Questões a Gerar (1 a 1.000)</label>
+            <input type="number" id="studyGenQty" min="1" max="1000" value="10" />
+          </div>
+        </div>
+
+        <div class="field reading-hide">
+          <label for="studyText">Texto / Resumo Base</label>
+          <textarea id="studyText" placeholder="Cole aqui suas anotações, resumo ou parágrafos do assunto..."></textarea>
+        </div>
+
+        <div class="btn-row reading-hide">
+          <button class="btn btn-primary" onclick="generateStudyMaterial()">Gerar Resumo, Tópicos e Questões</button>
+          <button class="btn btn-secondary" onclick="sendGeneratedToBankAndStart()">Opção Extra: Salvar no Banco e Iniciar Treino</button>
+          <button class="btn btn-secondary" onclick="exportStudyBundle()">Exportar Resumo + Flashcards</button>
+        </div>
+
+        <div id="studyOutputArea" style="margin-top: 18px; display:none;">
+          <div class="kpi-box" style="margin-bottom:12px;">
+            <strong id="studyOutputTitle">Resumo Organizado</strong>
+            <p id="studyFormattedText" class="muted" style="margin-top:6px;"></p>
+          </div>
+
+          <div class="kpi-box" style="margin-bottom:12px;">
+            <strong>Tópicos e Palavras-Chave</strong>
+            <div id="studyTopicsList" class="muted" style="margin-top:6px;"></div>
+          </div>
+
+          <div id="generatedQuestionsPreview" class="kpi-box"></div>
+        </div>
+      </div>
+
+      <div class="card reading-hide">
+        <h3 style="font-size:17px; margin-bottom:10px;">Flashcards (Frente e Verso — Clique para Virar)</h3>
+        <div class="grid-3">
+          <div class="field">
+            <label for="fcSubject">Assunto</label>
+            <input type="text" id="fcSubject" placeholder="Ex.: Geografia" />
+          </div>
+          <div class="field">
+            <label for="fcFront">Frente (Pergunta / Conceito)</label>
+            <input type="text" id="fcFront" placeholder="Ex.: O que é efeito estufa?" />
+          </div>
+          <div class="field">
+            <label for="fcBack">Verso (Resposta / Definição)</label>
+            <input type="text" id="fcBack" placeholder="Ex.: Retenção natural de calor na atmosfera..." />
+          </div>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="addCustomFlashcard()">+ Adicionar Flashcard Avulso</button>
+
+        <div id="flashcardsContainer" class="grid-2" style="margin-top:14px;"></div>
+      </div>
+    </section>
+    <!-- TELA 3: SESSÃO DE QUESTÕES -->
+    <section id="viewExam" class="view">
+      <div class="card">
+        <div class="session-top-meta" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px;">
+          <div>
+            <span id="examBadge" class="chip" style="margin-bottom:4px;">Modo Treino</span>
+            <div id="examProgressText" class="muted small">Questão 1 de 10</div>
+          </div>
+          <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+            <span id="comboBadge" class="chip" style="display:none; margin-bottom:0;">Combo: 0</span>
+            <span id="timerBadge" class="chip" style="display:none; margin-bottom:0;">25:00</span>
+            <button class="btn btn-secondary btn-sm" onclick="toggleFocusMode()">Tela Cheia / Foco</button>
+          </div>
+        </div>
+
+        <div class="progress-track" style="margin-bottom:14px;">
+          <div id="sessionBar" class="progress-fill"></div>
+        </div>
+
+        <div id="questionArea"></div>
+
+        <div class="btn-row" style="margin-top:14px; justify-content:space-between;">
+          <div class="btn-row" style="margin-top:0">
+            <button class="btn btn-secondary btn-sm" onclick="prevQuestion()">Anterior</button>
+            <button class="btn btn-secondary btn-sm" onclick="nextQuestion()">Próxima</button>
+            <button class="btn btn-secondary btn-sm" onclick="toggleFlagCurrent()">Marcar Dúvida</button>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="requestFinishSession()">Encerrar Sessão</button>
+        </div>
+
+        <div id="blankWarningBox" class="feedback-box" style="display:none; border-color:var(--warn); margin-top:12px;"></div>
+
+        <div id="questionMap" class="q-map"></div>
+      </div>
+
+      <div id="helperToolsCard" class="card" style="display:none;">
+        <h3 style="font-size:16px; margin-bottom:10px;">Rascunho e Calculadora</h3>
+        <div class="grid-2">
+          <div class="field">
+            <label for="scratchpad">Bloco de Rascunho</label>
+            <textarea id="scratchpad" placeholder="Anote cálculos, ideias ou rascunho aqui..."></textarea>
+          </div>
+          <div>
+            <label>Calculadora Rápida</label>
+            <input type="text" id="calcDisplay" readonly value="0" style="margin-top:6px; margin-bottom:8px; text-align:right; font-weight:700;" />
+            <div id="calcGrid" style="display:grid; grid-template-columns:repeat(4,1fr); gap:6px;"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- TELA 3: SESSÃO DE QUESTÕES -->
+    <section id="viewExam" class="view">
+      <div class="card">
+        <div class="session-top-meta" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px;">
+          <div>
+            <span id="examBadge" class="chip" style="margin-bottom:4px;">Modo Treino</span>
+            <div id="examProgressText" class="muted small">Questão 1 de 10</div>
+          </div>
+          <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+            <span id="comboBadge" class="chip" style="display:none; margin-bottom:0;">Combo: 0</span>
+            <span id="timerBadge" class="chip" style="display:none; margin-bottom:0;">25:00</span>
+            <button class="btn btn-secondary btn-sm" onclick="toggleFocusMode()">Tela Cheia / Foco</button>
+          </div>
+        </div>
+
+        <div class="progress-track" style="margin-bottom:14px;">
+          <div id="sessionBar" class="progress-fill"></div>
+        </div>
+
+        <div id="questionArea"></div>
+
+        <div class="btn-row" style="margin-top:14px; justify-content:space-between;">
+          <div class="btn-row" style="margin-top:0">
+            <button class="btn btn-secondary btn-sm" onclick="prevQuestion()">Anterior</button>
+            <button class="btn btn-secondary btn-sm" onclick="nextQuestion()">Próxima</button>
+            <button class="btn btn-secondary btn-sm" onclick="toggleFlagCurrent()">Marcar Dúvida</button>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="requestFinishSession()">Encerrar Sessão</button>
+        </div>
+
+        <div id="blankWarningBox" class="feedback-box" style="display:none; border-color:var(--warn); margin-top:12px;"></div>
+
+        <div id="questionMap" class="q-map"></div>
+      </div>
+
+      <div id="helperToolsCard" class="card" style="display:none;">
+        <h3 style="font-size:16px; margin-bottom:10px;">Rascunho e Calculadora</h3>
+        <div class="grid-2">
+          <div class="field">
+            <label for="scratchpad">Bloco de Rascunho</label>
+            <textarea id="scratchpad" placeholder="Anote cálculos, ideias ou rascunho aqui..."></textarea>
+          </div>
+          <div>
+            <label>Calculadora Rápida</label>
+            <input type="text" id="calcDisplay" readonly value="0" style="margin-top:6px; margin-bottom:8px; text-align:right; font-weight:700;" />
+            <div id="calcGrid" style="display:grid; grid-template-columns:repeat(4,1fr); gap:6px;"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- TELA 4: RESULTADO -->
+    <section id="viewResult" class="view">
+      <div class="card">
+        <span class="chip">Resumo da Sessão</span>
+        <h2 style="font-size:22px; margin-bottom:12px;">Desempenho Final</h2>
+        <div class="grid-3" id="resultStatsGrid"></div>
+        <div id="resultDetailsList" style="margin-top:16px;"></div>
+        <div class="btn-row" style="margin-top:16px;">
+          <button class="btn btn-primary" onclick="navigateTo('viewHome')">Voltar ao Início</button>
+          <button class="btn btn-secondary" onclick="startQuickReview()">Revisar Erradas / Marcadas</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- TELA 5: HISTÓRICO E ESTATÍSTICAS -->
+    <section id="viewHistory" class="view">
+      <div class="card">
+        <h2 style="font-size:20px; margin-bottom:6px;">Estatísticas por Dia da Semana</h2>
+        <p class="muted small">Quantidade de questões resolvidas nos últimos 7 dias.</p>
+        <div id="weeklyChart" class="bar-chart"></div>
+      </div>
+
+      <div class="card">
+        <h2 style="font-size:20px; margin-bottom:10px;">Banco de Questões (Editar, Duplicar ou Excluir)</h2>
+        <div class="field">
+          <input type="text" id="bankSearchInput" placeholder="Buscar questão no banco por palavra-chave ou assunto..." oninput="renderQuestionBank()" />
+        </div>
+        <div id="questionBankList"></div>
+      </div>
+
+      <div class="card">
+        <h2 style="font-size:20px; margin-bottom:10px;">Histórico de Sessões</h2>
+        <div id="historyList"></div>
+      </div>
+    </section>
+
+    <!-- TELA 6: ADICIONAR OU EDITAR QUESTÃO -->
+    <section id="viewAddQuestion" class="view">
+      <div class="card">
+        <h2 id="formQuestionTitle" style="font-size:20px; margin-bottom:12px;">Adicionar Nova Questão</h2>
+        <input type="hidden" id="editingQuestionId" />
+
+        <div class="grid-2">
+          <div class="field">
+            <label for="qSubject">Assunto / Tema</label>
+            <input type="text" id="qSubject" placeholder="Ex.: Matemática" />
+          </div>
+          <div class="field">
+            <label for="qDifficulty">Dificuldade</label>
+            <select id="qDifficulty">
+              <option value="Fácil">Fácil</option>
+              <option value="Médio" selected>Médio</option>
+              <option value="Difícil">Difícil</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="qStatement">Enunciado da Questão</label>
+          <textarea id="qStatement" placeholder="Digite o enunciado..."></textarea>
+        </div>
+
+        <div class="grid-2">
+          <div class="field"><label>Alternativa A</label><input type="text" id="opt0" /></div>
+          <div class="field"><label>Alternativa B</label><input type="text" id="opt1" /></div>
+          <div class="field"><label>Alternativa C</label><input type="text" id="opt2" /></div>
+          <div class="field"><label>Alternativa D</label><input type="text" id="opt3" /></div>
+        </div>
+
+        <div class="grid-2">
+          <div class="field">
+            <label for="qCorrect">Alternativa Correta</label>
+            <select id="qCorrect">
+              <option value="0">A</option>
+              <option value="1">B</option>
+              <option value="2">C</option>
+              <option value="3">D</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="qTip">Dica / Explicação</label>
+            <input type="text" id="qTip" placeholder="Explique brevemente a resolução..." />
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="saveQuestionForm()">Salvar Questão</button>
+          <button class="btn btn-secondary" onclick="clearQuestionForm()">Limpar Campos</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div id="toast" class="toast"></div>
+   <script>
+    const STORAGE_KEY = "resumo_foco_dark_verde_v2";
+
+    const BG_PALETTES = {
+      verde_abismo: { main: "#070d09", surface: "#0d1711", card: "#122118", soft: "#172b1f", border: "#1e3828", label: "Verde Abismo" },
+      carvao_puro: { main: "#09090b", surface: "#111114", card: "#18181d", soft: "#222229", border: "#2c2c35", label: "Carvão" },
+      noite_azul: { main: "#060b14", surface: "#0c1524", card: "#121f34", soft: "#182a45", border: "#22395c", label: "Noite Azul" },
+      vinho_escuro: { main: "#10070a", surface: "#1a0c11", card: "#241118", soft: "#301720", border: "#42202c", label: "Vinho" }
+    };
+
+    const MINOR_COLORS = {
+      verde_esmeralda: { accent: "#16a34a", bright: "#22c55e", dark: "#064e24", glow: "rgba(34, 197, 94, 0.22)", label: "Verde Esmeralda" },
+      lima_neon: { accent: "#65a30d", bright: "#a3e635", dark: "#365314", glow: "rgba(163, 230, 53, 0.20)", label: "Verde Lima" },
+      ciano_suave: { accent: "#0891b2", bright: "#22d3ee", dark: "#164e63", glow: "rgba(34, 211, 238, 0.20)", label: "Ciano" },
+      ambar_quente: { accent: "#d97706", bright: "#fbbf24", dark: "#78350f", glow: "rgba(251, 191, 36, 0.20)", label: "Âmbar" },
+      violeta_suave: { accent: "#7c3aed", bright: "#a78bfa", dark: "#4c1d95", glow: "rgba(167, 139, 250, 0.20)", label: "Violeta" }
+    };
+
+    const DEFAULT_QUESTIONS = [
+      { id: "q1", subject: "Matemática", difficulty: "Fácil", statement: "Se 3 cadernos custam R$ 24, quanto custam 5 cadernos do mesmo preço?", options: ["R$ 32", "R$ 36", "R$ 40", "R$ 45"], correct: 2, tip: "Cada caderno custa 24 / 3 = R$ 8. Cinco cadernos: 5 * 8 = R$ 40.", status: "none", flagged: false },
+      { id: "q2", subject: "Matemática", difficulty: "Médio", statement: "Qual é o valor de 25% de 320?", options: ["60", "70", "80", "90"], correct: 2, tip: "25% equivale a 1/4. Divida 320 por 4 = 80.", status: "none", flagged: false },
+      { id: "q3", subject: "Ciências", difficulty: "Fácil", statement: "Qual organela celular é conhecida principalmente pela produção de energia (ATP)?", options: ["Ribossomo", "Mitocôndria", "Complexo de Golgi", "Lisossomo"], correct: 1, tip: "A mitocôndria realiza a respiração celular aeróbica e gera ATP.", status: "none", flagged: false },
+      { id: "q4", subject: "História", difficulty: "Médio", statement: "Em que ano foi proclamada a República no Brasil?", options: ["1822", "1888", "1889", "1891"], correct: 2, tip: "A Proclamação da República ocorreu em 15 de novembro de 1889.", status: "none", flagged: false },
+      { id: "q5", subject: "Geografia", difficulty: "Fácil", statement: "Qual linha imaginária divide a Terra nos hemisférios Norte e Sul?", options: ["Meridiano de Greenwich", "Linha do Equador", "Trópico de Capricórnio", "Círculo Polar Ártico"], correct: 1, tip: "A Linha do Equador está na latitude 0°.", status: "none", flagged: false },
+      { id: "q6", subject: "Português", difficulty: "Médio", statement: "Em 'O aluno estudou bastante para a prova', qual é o núcleo do sujeito?", options: ["aluno", "estudou", "bastante", "prova"], correct: 0, tip: "Quem estudou? 'O aluno' — núcleo: aluno.", status: "none", flagged: false }
+    ];
+
+    function getTodayStr() {
+      const d = new Date();
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    }
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) return JSON.parse(raw);
+      } catch (e) {}
+      return {
+        theme: { bg: "verde_abismo", minor: "verde_esmeralda" },
+        goals: { daily: 15, weekly: 80 },
+        dailySolved: { [getTodayStr()]: 0 },
+        history: [],
+        questions: DEFAULT_QUESTIONS,
+        flashcards: [
+          { id: "fc1", subject: "Matemática", front: "Porcentagem de aumento", back: "Valor inicial * (1 + taxa/100)" },
+          { id: "fc2", subject: "Ciências", front: "Fotossíntese", back: "Processo que converte luz, água e CO2 em glicose e O2." }
+        ],
+        lastGeneratedQuestions: [],
+        lastStudyBundle: null
+      };
+    }
+
+    let state = loadState();
+    let currentSession = null;
+    let timerInterval = null;
+    let highlightActive = false;
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function showToast(msg) {
+      const el = document.getElementById("toast");
+      el.textContent = msg;
+      el.classList.add("show");
+      clearTimeout(showToast._t);
+      showToast._t = setTimeout(() => el.classList.remove("show"), 2300);
+    }
+
+    function toggleDrawer(force) {
+      const drawer = document.getElementById("mainDrawer");
+      const backdrop = document.getElementById("drawerBackdrop");
+      const next = typeof force === "boolean" ? force : !drawer.classList.contains("open");
+      drawer.classList.toggle("open", next);
+      backdrop.classList.toggle("open", next);
+    }
+
+    function navigateTo(viewId) {
+      document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+      document.getElementById(viewId).classList.add("active");
+      document.querySelectorAll(".drawer-item").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.nav === viewId);
+      });
+      toggleDrawer(false);
+      if (viewId === "viewHome") populateHomeOptions();
+      if (viewId === "viewHistory") {
+        renderWeeklyChart();
+        renderQuestionBank();
+        renderHistory();
+      }
+      if (viewId === "viewStudy") renderFlashcards();
+    }
+
+    function applyThemeSelection() {
+      const bgKey = document.getElementById("bgPaletteSelect").value;
+      const minorKey = document.getElementById("minorColorSelect").value;
+      state.theme = { bg: bgKey, minor: minorKey };
+      saveState();
+      applyThemeToDom();
+      showToast("Cores atualizadas!");
+    }
+
+    function applyThemeToDom() {
+      const bg = BG_PALETTES[state.theme?.bg] || BG_PALETTES.verde_abismo;
+      const minor = MINOR_COLORS[state.theme?.minor] || MINOR_COLORS.verde_esmeralda;
+      const r = document.documentElement.style;
+      r.setProperty("--bg-main", bg.main);
+      r.setProperty("--bg-surface", bg.surface);
+      r.setProperty("--bg-card", bg.card);
+      r.setProperty("--bg-soft", bg.soft);
+      r.setProperty("--border", bg.border);
+      r.setProperty("--accent", minor.accent);
+      r.setProperty("--accent-bright", minor.bright);
+      r.setProperty("--accent-dark", minor.dark);
+      r.setProperty("--accent-glow", minor.glow);
+
+      document.getElementById("bgPaletteSelect").value = state.theme?.bg || "verde_abismo";
+      document.getElementById("minorColorSelect").value = state.theme?.minor || "verde_esmeralda";
+      document.getElementById("headerSubtitle").textContent = `${bg.label} • ${minor.label}`;
+      renderGoalBars();
+    }
+    function clampQty(val) {
+      const n = parseInt(val, 10);
+      if (Number.isNaN(n) || n < 1) return 1;
+      if (n > 1000) return 1000;
+      return n;
+    }
+
+    function updateCustomGoal() {
+      state.goals.daily = clampQty(document.getElementById("dailyGoalInput").value);
+      const weekly = parseInt(document.getElementById("weeklyGoalInput").value, 10);
+      state.goals.weekly = Number.isNaN(weekly) || weekly < 1 ? 1 : Math.min(5000, weekly);
+      document.getElementById("dailyGoalInput").value = state.goals.daily;
+      document.getElementById("weeklyGoalInput").value = state.goals.weekly;
+      saveState();
+      renderGoalBars();
+    }
+
+    function getGoalColorByPercent(pct) {
+      if (pct < 25) return "#ef4444";
+      if (pct < 50) return "#f97316";
+      if (pct < 80) return "#eab308";
+      if (pct < 100) return "#22c55e";
+      return "#10b981";
+    }
+
+    function getWeeklySolved() {
+      let total = 0;
+      const now = new Date();
+      for (let i = 0; i < 7; i++) {
+        const d = new Date(now);
+        d.setDate(now.getDate() - i);
+        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+        total += state.dailySolved[key] || 0;
+      }
+      return total;
+    }
+
+    function computeStreak() {
+      let streak = 0;
+      const now = new Date();
+      for (let i = 0; i < 365; i++) {
+        const d = new Date(now);
+        d.setDate(now.getDate() - i);
+        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+        if ((state.dailySolved[key] || 0) > 0) streak++;
+        else if (i > 0) break;
+      }
+      return streak;
+    }
+
+    function renderGoalBars() {
+      const todayKey = getTodayStr();
+      const solvedToday = state.dailySolved[todayKey] || 0;
+      const goal = state.goals.daily || 15;
+      const weeklySolved = getWeeklySolved();
+      const weeklyGoal = state.goals.weekly || 80;
+      const pct = Math.min(100, (solvedToday / goal) * 100);
+
+      document.getElementById("dailyGoalInput").value = goal;
+      document.getElementById("weeklyGoalInput").value = weeklyGoal;
+      document.getElementById("dailyGoalLabel").textContent = `Meta Diária: ${solvedToday} / ${goal} hoje (${Math.round(pct)}%)`;
+      document.getElementById("streakLabel").textContent = `Sequência: ${computeStreak()} dia(s) • Semanal: ${weeklySolved}/${weeklyGoal}`;
+
+      const bar = document.getElementById("dailyGoalBar");
+      bar.style.width = `${pct}%`;
+      bar.style.backgroundColor = getGoalColorByPercent(pct);
+    }
+
+    function populateHomeOptions() {
+      const sel = document.getElementById("homeSubject");
+      const subjects = ["Todos", ...new Set(state.questions.map(q => q.subject))];
+      sel.innerHTML = subjects.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join("");
+      renderGoalBars();
+    }
+
+    function escapeHtml(str) {
+      return String(str || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+    function buildPoolForHome() {
+      const subj = document.getElementById("homeSubject").value;
+      const statusFilter = document.getElementById("homeStatusFilter").value;
+      const diffFilter = document.getElementById("homeDiffFilter").value;
+      const search = document.getElementById("homeSearch").value.trim().toLowerCase();
+
+      return state.questions.filter(q => {
+        if (subj !== "Todos" && q.subject !== subj) return false;
+        if (diffFilter !== "todas" && q.difficulty !== diffFilter) return false;
+        if (statusFilter === "nao_feitas" && q.status !== "none") return false;
+        if (statusFilter === "erradas" && q.status !== "wrong") return false;
+        if (statusFilter === "marcadas" && !q.flagged) return false;
+        if (search && !`${q.statement} ${q.subject}`.toLowerCase().includes(search)) return false;
+        return true;
+      });
+    }
+
+    function synthesizeQuestionsFromTopic(topic, text, qty) {
+      const sentences = text
+        .split(/[.!?\n]+/)
+        .map(s => s.trim())
+        .filter(s => s.length > 18);
+
+      const list = [];
+      for (let i = 0; i < qty; i++) {
+        const base = sentences.length ? sentences[i % sentences.length] : `conceito fundamental de ${topic}`;
+        const snippet = base.slice(0, 95);
+        const correctOpt = `Relaciona-se diretamente ao trecho: "${snippet}"`;
+        const opts = [
+          correctOpt,
+          `Não possui relação com ${topic} nem com o texto estudado`,
+          `Ocorre exclusivamente fora do contexto de ${topic}`,
+          `Anula qualquer aplicação prática de ${topic}`
+        ];
+        list.push({
+          id: `gen_${Date.now()}_${i}`,
+          subject: topic || "Estudo Geral",
+          difficulty: i % 3 === 0 ? "Fácil" : (i % 3 === 1 ? "Médio" : "Difícil"),
+          statement: `[#${i + 1} • ${topic}] Com base no resumo, o que se destaca sobre este ponto?`,
+          options: opts,
+          correct: 0,
+          tip: `Releia o trecho-base do resumo sobre ${topic}.`,
+          status: "none",
+          flagged: false
+        });
+      }
+      return list;
+    }
+
+    function startSessionFromHome() {
+      const qty = clampQty(document.getElementById("homeQty").value);
+      document.getElementById("homeQty").value = qty;
+      const pool = buildPoolForHome();
+      const subj = document.getElementById("homeSubject").value;
+
+      let selected = [];
+      if (pool.length === 0) {
+        selected = synthesizeQuestionsFromTopic(subj === "Todos" ? "Assunto Livre" : subj, "", qty);
+      } else {
+        for (let i = 0; i < qty; i++) {
+          const item = pool[i % pool.length];
+          selected.push({ ...item, instanceIndex: i });
+        }
+      }
+
+      launchSession(selected, document.getElementById("homeMode").value, {
+        showCounter: document.getElementById("optCounter").checked,
+        useTimer: document.getElementById("optTimer").checked,
+        showCalc: document.getElementById("optCalc").checked
+      });
+    }
+
+    function startQuickReview() {
+      const reviewPool = state.questions.filter(q => q.status === "wrong" || q.flagged);
+      if (reviewPool.length === 0) {
+        showToast("Nenhuma questão errada ou marcada para revisar!");
+        return;
+      }
+      launchSession(reviewPool.slice(0, 1000), "treino", {
+        showCounter: document.getElementById("optCounter")?.checked || false,
+        useTimer: false,
+        showCalc: true
+      });
+    }
+
+    function launchSession(questions, mode, cfg) {
+      clearInterval(timerInterval);
+      document.body.classList.remove("focus-mode");
+      currentSession = {
+        questions,
+        mode,
+        cfg,
+        index: 0,
+        answers: Array(questions.length).fill(null),
+        combo: 0,
+        maxCombo: 0,
+        secondsLeft: 25 * 60
+      };
+
+      navigateTo("viewExam");
+      document.getElementById("examBadge").textContent = mode === "prova" ? "Modo Prova" : "Modo Treino";
+      document.getElementById("helperToolsCard").style.display = cfg.showCalc ? "block" : "none";
+      document.getElementById("comboBadge").style.display = cfg.showCounter ? "inline-flex" : "none";
+      document.getElementById("timerBadge").style.display = cfg.useTimer ? "inline-flex" : "none";
+      document.getElementById("blankWarningBox").style.display = "none";
+
+      updateComboBadge();
+      if (cfg.useTimer) {
+        updateTimerLabel();
+        timerInterval = setInterval(() => {
+          currentSession.secondsLeft--;
+          if (currentSession.secondsLeft <= 0) {
+            clearInterval(timerInterval);
+            finishSession();
+            return;
+          }
+          updateTimerLabel();
+        }, 1000);
+      }
+      renderSessionQuestion();
+    }
+
+    function updateTimerLabel() {
+      const m = String(Math.floor(currentSession.secondsLeft / 60)).padStart(2, "0");
+      const s = String(currentSession.secondsLeft % 60).padStart(2, "0");
+      document.getElementById("timerBadge").textContent = `Tempo: ${m}:${s}`;
+    }
+
+    function updateComboBadge() {
+      if (!currentSession?.cfg.showCounter) return;
+      document.getElementById("comboBadge").textContent = `Combo: ${currentSession.combo} (Máx: ${currentSession.maxCombo})`;
+    }
+
+    function renderSessionQuestion() {
+      const q = currentSession.questions[currentSession.index];
+      const total = currentSession.questions.length;
+      const chosen = currentSession.answers[currentSession.index];
+
+      document.getElementById("examProgressText").textContent = `Questão ${currentSession.index + 1} de ${total} • ${q.subject} (${q.difficulty})`;
+      document.getElementById("sessionBar").style.width = `${((currentSession.index + 1) / total) * 100}%`;
+
+      const letters = ["A", "B", "C", "D"];
+      let html = `<h3 style="font-size:17px; margin-bottom:14px;">${escapeHtml(q.statement)}</h3>`;
+
+      q.options.forEach((opt, idx) => {
+        let cls = "option-btn";
+        if (chosen === idx) cls += " selected";
+        if (currentSession.mode === "treino" && chosen !== null) {
+          if (idx === q.correct) cls += " correct";
+          else if (idx === chosen) cls += " wrong";
+        }
+        html += `<button class="${cls}" ${currentSession.mode === "treino" && chosen !== null ? "disabled" : ""} onclick="selectOption(${idx})">
+          <strong>${letters[idx]})</strong> ${escapeHtml(opt)}
+        </button>`;
+      });
+
+      if (currentSession.mode === "treino" && chosen !== null) {
+        const ac = chosen === q.correct;
+        html += `<div class="feedback-box">
+          <strong style="color:${ac ? "#22c55e" : "#ef4444"}">${ac ? "Acertou!" : "Resposta incorreta"}</strong>
+          <p class="muted" style="margin-top:4px;">${escapeHtml(q.tip || "Sem dica cadastrada.")}</p>
+        </div>`;
+      }
+
+      document.getElementById("questionArea").innerHTML = html;
+      renderQuestionMap();
+    }
+
+    function selectOption(idx) {
+      const prev = currentSession.answers[currentSession.index];
+      currentSession.answers[currentSession.index] = idx;
+      const q = currentSession.questions[currentSession.index];
+
+      if (currentSession.mode === "treino" && prev === null) {
+        if (idx === q.correct) {
+          currentSession.combo++;
+          if (currentSession.combo > currentSession.maxCombo) currentSession.maxCombo = currentSession.combo;
+        } else {
+          currentSession.combo = 0;
+        }
+        updateComboBadge();
+      }
+      renderSessionQuestion();
+    }
+
+    function prevQuestion() {
+      if (currentSession.index > 0) {
+        currentSession.index--;
+        renderSessionQuestion();
+      }
+    }
+
+    function nextQuestion() {
+      if (currentSession.index < currentSession.questions.length - 1) {
+        currentSession.index++;
+        renderSessionQuestion();
+      }
+    }
+
+    function toggleFlagCurrent() {
+      const q = currentSession.questions[currentSession.index];
+      q.flagged = !q.flagged;
+      const bankItem = state.questions.find(item => item.id === q.id);
+      if (bankItem) bankItem.flagged = q.flagged;
+      saveState();
+      renderQuestionMap();
+      showToast(q.flagged ? "Marcada para revisão" : "Marcação removida");
+    }
+
+    function renderQuestionMap() {
+      const mapEl = document.getElementById("questionMap");
+      mapEl.innerHTML = currentSession.questions.map((q, i) => {
+        let cls = "q-dot";
+        if (i === currentSession.index) cls += " current";
+        if (currentSession.answers[i] !== null) cls += " answered";
+        if (q.flagged) cls += " flagged";
+        return `<button class="${cls}" onclick="currentSession.index=${i};renderSessionQuestion()">${i + 1}</button>`;
+      }).join("");
+    }
+
+    function toggleFocusMode() {
+      document.body.classList.toggle("focus-mode");
+    }
+
+    function requestFinishSession() {
+      const blanks = currentSession.answers.filter(a => a === null).length;
+      const warnBox = document.getElementById("blankWarningBox");
+      if (blanks > 0 && !warnBox.dataset.confirmed) {
+        warnBox.dataset.confirmed = "1";
+        warnBox.style.display = "block";
+        warnBox.innerHTML = `<strong>Atenção:</strong> Você deixou <strong>${blanks}</strong> questão(ões) sem resposta. Clique em <em>Encerrar Sessão</em> novamente para confirmar o envio.`;
+        return;
+      }
+      delete warnBox.dataset.confirmed;
+      finishSession();
+    }
+
+    function finishSession() {
+      clearInterval(timerInterval);
+      document.body.classList.remove("focus-mode");
+
+      let answeredCount = 0;
+      let correctCount = 0;
+
+      currentSession.questions.forEach((q, i) => {
+        const ans = currentSession.answers[i];
+        if (ans !== null) {
+          answeredCount++;
+          const isRight = ans === q.correct;
+          if (isRight) correctCount++;
+          const bankItem = state.questions.find(item => item.id === q.id);
+          if (bankItem) bankItem.status = isRight ? "correct" : "wrong";
+        }
+      });
+
+      const todayKey = getTodayStr();
+      state.dailySolved[todayKey] = (state.dailySolved[todayKey] || 0) + answeredCount;
+      state.history.unshift({
+        date: new Date().toLocaleString("pt-BR"),
+        total: currentSession.questions.length,
+        answered: answeredCount,
+        correct: correctCount
+      });
+      saveState();
+      renderGoalBars();
+
+      const pct = answeredCount > 0 ? Math.round((correctCount / answeredCount) * 100) : 0;
+      document.getElementById("resultStatsGrid").innerHTML = `
+        <div class="kpi-box"><div class="muted small">Acertos</div><div class="kpi-value">${correctCount} / ${answeredCount}</div></div>
+        <div class="kpi-box"><div class="muted small">Aproveitamento</div><div class="kpi-value">${pct}%</div></div>
+        <div class="kpi-box"><div class="muted small">Maior Combo</div><div class="kpi-value">${currentSession.maxCombo}</div></div>
+      `;
+      document.getElementById("resultDetailsList").innerHTML = currentSession.questions.map((q, i) => {
+        const ans = currentSession.answers[i];
+        const statusTxt = ans === null ? "Em branco" : (ans === q.correct ? "Correta" : "Incorreta");
+        return `<div class="kpi-box" style="margin-bottom:8px;">
+          <strong>#${i + 1} (${statusTxt}):</strong> ${escapeHtml(q.statement)}
+          <div class="muted small" style="margin-top:4px;">${escapeHtml(q.tip || "")}</div>
+        </div>`;
+      }).join("");
+
+      navigateTo("viewResult");
+    }
+    function generateStudyMaterial() {
+      const topic = document.getElementById("studySubject").value.trim() || "Assunto Personalizado";
+      const text = document.getElementById("studyText").value.trim();
+      const qty = clampQty(document.getElementById("studyGenQty").value);
+      document.getElementById("studyGenQty").value = qty;
+
+      const words = text
+        .replace(/[^\p{L}\s]/gu, " ")
+        .split(/\s+/)
+        .filter(w => w.length >= 6);
+      const freq = {};
+      words.forEach(w => {
+        const lw = w.toLowerCase();
+        freq[lw] = (freq[lw] || 0) + 1;
+      });
+      const keywords = Object.entries(freq).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([k]) => k);
+
+      const generated = synthesizeQuestionsFromTopic(topic, text, qty);
+      state.lastGeneratedQuestions = generated;
+      state.lastStudyBundle = { topic, text, keywords, generated };
+      saveState();
+
+      document.getElementById("studyOutputArea").style.display = "block";
+      document.getElementById("studyOutputTitle").textContent = `Resumo: ${topic}`;
+      document.getElementById("studyFormattedText").textContent = text || "Nenhum texto base colado; perguntas geradas pelo tema.";
+      document.getElementById("studyTopicsList").innerHTML = keywords.length
+        ? `Palavras-chave: <strong>${keywords.map(escapeHtml).join(", ")}</strong>`
+        : "Adicione mais texto para extrair palavras-chave automaticamente.";
+
+      document.getElementById("generatedQuestionsPreview").innerHTML =
+        `<strong>${generated.length} Questões Geradas</strong> <span class="muted small">(prontas para enviar ao banco ou iniciar treino)</span>`;
+
+      if (highlightActive) applyKeywordHighlights(keywords);
+      showToast(`${generated.length} questões geradas!`);
+    }
+
+    function sendGeneratedToBankAndStart() {
+      if (!state.lastGeneratedQuestions || state.lastGeneratedQuestions.length === 0) {
+        generateStudyMaterial();
+      }
+      const batch = state.lastGeneratedQuestions.map((q, i) => ({
+        ...q,
+        id: `bank_${Date.now()}_${i}`
+      }));
+      state.questions.unshift(...batch);
+      saveState();
+      launchSession(batch, "treino", {
+        showCounter: true,
+        useTimer: false,
+        showCalc: true
+      });
+    }
+
+    function exportStudyBundle() {
+      const bundle = {
+        study: state.lastStudyBundle,
+        flashcards: state.flashcards
+      };
+      downloadJson(bundle, `resumo-flashcards-${Date.now()}.json`);
+      showToast("Resumo e flashcards exportados!");
+    }
+
+    function toggleReadingClean() {
+      document.body.classList.toggle("reading-clean");
+    }
+
+    function toggleHighlightTerms() {
+      highlightActive = !highlightActive;
+      const box = document.getElementById("studyFormattedText");
+      box.classList.toggle("reading-highlighted", highlightActive);
+      const kws = state.lastStudyBundle?.keywords || [];
+      if (highlightActive) applyKeywordHighlights(kws);
+      else box.textContent = state.lastStudyBundle?.text || box.textContent;
+    }
+
+    function applyKeywordHighlights(kws) {
+      const box = document.getElementById("studyFormattedText");
+      let html = escapeHtml(state.lastStudyBundle?.text || box.textContent);
+      kws.forEach(kw => {
+        const re = new RegExp(`(${kw})`, "gi");
+        html = html.replace(re, "<mark>$1</mark>");
+      });
+      box.innerHTML = html;
+      box.classList.add("reading-highlighted");
+    }
+
+    function addCustomFlashcard() {
+      const subject = document.getElementById("fcSubject").value.trim() || "Geral";
+      const front = document.getElementById("fcFront").value.trim();
+      const back = document.getElementById("fcBack").value.trim();
+      if (!front || !back) {
+        showToast("Preencha frente e verso do flashcard.");
+        return;
+      }
+      state.flashcards.unshift({ id: `fc_${Date.now()}`, subject, front, back });
+      document.getElementById("fcFront").value = "";
+      document.getElementById("fcBack").value = "";
+      saveState();
+      renderFlashcards();
+      showToast("Flashcard adicionado!");
+    }
+
+    function renderFlashcards() {
+      const container = document.getElementById("flashcardsContainer");
+      if (!state.flashcards.length) {
+        container.innerHTML = `<p class="muted small">Nenhum flashcard ainda.</p>`;
+        return;
+      }
+      container.innerHTML = state.flashcards.map(fc => `
+        <div class="flashcard" data-flipped="0" onclick="flipCard(this, '${escapeHtml(fc.front)}', '${escapeHtml(fc.back)}')">
+          <div class="muted small">${escapeHtml(fc.subject)} • Frente</div>
+          <div style="font-weight:700; margin-top:6px;">${escapeHtml(fc.front)}</div>
+        </div>
+      `).join("");
+    }
+
+    function flipCard(el, front, back) {
+      const flipped = el.dataset.flipped === "1";
+      el.dataset.flipped = flipped ? "0" : "1";
+      el.innerHTML = `<div class="muted small">${flipped ? "Frente" : "Verso"}</div>
+        <div style="font-weight:700; margin-top:6px;">${flipped ? front : back}</div>`;
+    }
+
+    function renderWeeklyChart() {
+      const chart = document.getElementById("weeklyChart");
+      const days = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+      const now = new Date();
+      const cols = [];
+      let maxVal = 1;
+
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date(now);
+        d.setDate(now.getDate() - i);
+        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+        const val = state.dailySolved[key] || 0;
+        if (val > maxVal) maxVal = val;
+        cols.push({ label: days[d.getDay()], val });
+      }
+
+      chart.innerHTML = cols.map(c => {
+        const h = Math.max(6, Math.round((c.val / maxVal) * 76));
+        return `<div class="bar-col">
+          <span class="muted small">${c.val}</span>
+          <div class="bar-item" style="height:${h}px"></div>
+          <span class="muted small">${c.label}</span>
+        </div>`;
+      }).join("");
+    }
+
+    function renderQuestionBank() {
+      const term = (document.getElementById("bankSearchInput")?.value || "").trim().toLowerCase();
+      const filtered = state.questions.filter(q => !term || `${q.statement} ${q.subject}`.toLowerCase().includes(term));
+      document.getElementById("questionBankList").innerHTML = filtered.slice(0, 50).map(q => `
+        <div class="kpi-box" style="margin-bottom:8px;">
+          <div style="display:flex; justify-content:space-between; gap:8px; flex-wrap:wrap;">
+            <strong>${escapeHtml(q.subject)} • ${escapeHtml(q.difficulty)}</strong>
+            <div class="btn-row" style="margin-top:0">
+              <button class="btn btn-secondary btn-sm" onclick="editQuestion('${q.id}')">Editar</button>
+              <button class="btn btn-secondary btn-sm" onclick="duplicateQuestion('${q.id}')">Duplicar</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteQuestion('${q.id}')">Excluir</button>
+            </div>
+          </div>
+          <p style="margin-top:6px;">${escapeHtml(q.statement)}</p>
+        </div>
+      `).join("") || `<p class="muted small">Nenhuma questão encontrada.</p>`;
+    }
+
+    function editQuestion(id) {
+      const q = state.questions.find(item => item.id === id);
+      if (!q) return;
+      document.getElementById("editingQuestionId").value = q.id;
+      document.getElementById("formQuestionTitle").textContent = "Editar Questão";
+      document.getElementById("qSubject").value = q.subject;
+      document.getElementById("qDifficulty").value = q.difficulty;
+      document.getElementById("qStatement").value = q.statement;
+      q.options.forEach((opt, idx) => {
+        const el = document.getElementById(`opt${idx}`);
+        if (el) el.value = opt;
+      });
+      document.getElementById("qCorrect").value = String(q.correct);
+      document.getElementById("qTip").value = q.tip || "";
+      navigateTo("viewAddQuestion");
+    }
+
+    function duplicateQuestion(id) {
+      const q = state.questions.find(item => item.id === id);
+      if (!q) return;
+      state.questions.unshift({ ...q, id: `q_${Date.now()}`, statement: `${q.statement} (Cópia)` });
+      saveState();
+      renderQuestionBank();
+      showToast("Questão duplicada!");
+    }
+
+    function deleteQuestion(id) {
+      state.questions = state.questions.filter(item => item.id !== id);
+      saveState();
+      renderQuestionBank();
+      showToast("Questão removida.");
+    }
+
+    function saveQuestionForm() {
+      const editId = document.getElementById("editingQuestionId").value;
+      const subject = document.getElementById("qSubject").value.trim() || "Geral";
+      const difficulty = document.getElementById("qDifficulty").value;
+      const statement = document.getElementById("qStatement").value.trim();
+      const options = [0, 1, 2, 3].map(i => document.getElementById(`opt${i}`).value.trim() || `Opção ${i + 1}`);
+      const correct = parseInt(document.getElementById("qCorrect").value, 10);
+      const tip = document.getElementById("qTip").value.trim();
+
+      if (!statement) {
+        showToast("Digite o enunciado da questão.");
+        return;
+      }
+
+      if (editId) {
+        const idx = state.questions.findIndex(item => item.id === editId);
+        if (idx !== -1) state.questions[idx] = { ...state.questions[idx], subject, difficulty, statement, options, correct, tip };
+      } else {
+        state.questions.unshift({ id: `q_${Date.now()}`, subject, difficulty, statement, options, correct, tip, status: "none", flagged: false });
+      }
+      saveState();
+      clearQuestionForm();
+      showToast("Questão salva!");
+      navigateTo("viewHistory");
+    }
+
+    function clearQuestionForm() {
+      document.getElementById("editingQuestionId").value = "";
+      document.getElementById("formQuestionTitle").textContent = "Adicionar Nova Questão";
+      ["qSubject", "qStatement", "opt0", "opt1", "opt2", "opt3", "qTip"].forEach(id => {
+        document.getElementById(id).value = "";
+      });
+    }
+
+    function renderHistory() {
+      const list = document.getElementById("historyList");
+      if (!state.history.length) {
+        list.innerHTML = `<p class="muted small">Nenhuma sessão concluída ainda.</p>`;
+        return;
+      }
+      list.innerHTML = state.history.map(h => `
+        <div class="kpi-box" style="margin-bottom:8px;">
+          <strong>${escapeHtml(h.date)}</strong> — Acertos: <strong>${h.correct}/${h.answered}</strong> (Total da sessão: ${h.total})
+        </div>
+      `).join("");
+    }
+
+    function buildCalc() {
+      const keys = ["7", "8", "9", "/", "4", "5", "6", "*", "1", "2", "3", "-", "C", "0", "=", "+"];
+      const grid = document.getElementById("calcGrid");
+      const disp = document.getElementById("calcDisplay");
+      grid.innerHTML = keys.map(k => `<button type="button" class="btn btn-secondary btn-sm" onclick="pressCalc('${k}')">${k}</button>`).join("");
+      window.pressCalc = function(k) {
+        if (k === "C") {
+          disp.value = "0";
+          return;
+        }
+        if (k === "=") {
+          try {
+            const clean = disp.value.replace(/[^0-9+\-*/().]/g, "");
+            disp.value = String(Function(`"use strict";return (${clean})`)());
+          } catch (e) {
+            disp.value = "Erro";
+          }
+          return;
+        }
+        if (disp.value === "0" || disp.value === "Erro") disp.value = k;
+        else disp.value += k;
+      };
+    }
+
+    function downloadJson(obj, filename) {
+      const blob = new Blob([JSON.stringify(obj, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function exportData() {
+      downloadJson(state, `resumo-foco-backup-${getTodayStr()}.json`);
+      showToast("Backup exportado!");
+    }
+
+    function importData(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const parsed = JSON.parse(reader.result);
+          if (parsed && Array.isArray(parsed.questions)) {
+            state = { ...state, ...parsed };
+            saveState();
+            applyThemeToDom();
+            populateHomeOptions();
+            showToast("Backup importado com sucesso!");
+          } else {
+            showToast("Arquivo JSON inválido.");
+          }
+        } catch (e) {
+          showToast("Erro ao ler o arquivo.");
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function resetProgressWithConfirm() {
+      const ok = confirm("Tem certeza de que deseja zerar seu progresso, histórico e estatísticas diárias?");
+      if (!ok) return;
+      state.dailySolved = { [getTodayStr()]: 0 };
+      state.history = [];
+      saveState();
+      renderGoalBars();
+      renderWeeklyChart();
+      renderHistory();
+      showToast("Progresso zerado!");
+    }
+
+    applyThemeToDom();
+    populateHomeOptions();
+    buildCalc();
+    renderFlashcards();
+     if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js").catch(() => {});
+  });
+}
+  </script>
+</body>
+</html>
